@@ -2,6 +2,7 @@ use super::{
     definitions::{INFINITY, MATE, MAX_PLY},
     eval::eval,
     options::SearchOptions,
+    ordering::MoveOrdering,
     pv_table::PVTable,
 };
 use crate::{chess::move_gen, search::timeman::timeman};
@@ -77,8 +78,10 @@ pub fn search(
 
     let mut best_score = -INFINITY;
     let moves: Vec<Move> = move_gen::all_moves(board);
+    let moves = MoveOrdering::new(board, &moves);
 
-    for mv in moves {
+    for scored_move in moves {
+        let mv = scored_move.mv();
         let mut new_board = board.clone();
         new_board.play_unchecked(mv);
         info.nodes += 1;
