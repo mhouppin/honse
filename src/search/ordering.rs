@@ -1,5 +1,4 @@
 use cozy_chess::{Board, Color, Move, Piece, Rank, Square};
-
 use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use std::iter::IntoIterator;
 
@@ -43,7 +42,7 @@ impl Ord for ScoredMove {
     }
 }
 
-// Give a bonus to pieces during promotions/captures.
+// Give a bonus to pieces taken during captures
 fn piece_order_score(piece: Piece) -> i16 {
     match piece {
         Piece::Queen => 4096,
@@ -64,11 +63,8 @@ fn move_score(board: &Board, mv: Move) -> i16 {
         }
     } else if let Some(file) = board.en_passant() {
         // Handle the en passant edge case
-        let rank = match board.side_to_move() {
-            Color::White => Rank::Sixth,
-            Color::Black => Rank::Third,
-        };
-        let ep_square = Square::new(file, rank);
+        let us = board.side_to_move();
+        let ep_square = Square::new(file, Rank::Sixth.relative_to(us));
 
         if mv.to == ep_square && board.piece_on(mv.from) == Some(Piece::Pawn) {
             score += 8192;
